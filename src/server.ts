@@ -1,12 +1,71 @@
-import express, { Request, Response } from "express";
+import { Server } from "http";
+import app from "./app";
+import { envVars } from "./app/config/env";
 
-const app = express();
-const port = 4000;
+let server: Server;
 
-app.get("/", (req: Request, res: Response) => {
-  res.send("Hello World!");
+const bootstrap = async () => {
+  try {
+    server = app.listen(envVars.PORT, () => {
+      console.log(`Server is running on http://localhost:${envVars.PORT}`);
+    });
+  } catch (error) {
+    console.error("An error occur", error);
+  }
+};
+
+//handle sigterm
+process.on("SIGTERM", () => {
+  console.log("SIGTERM signal received. Shutting down server...");
+
+  if (server) {
+    server.close(() => {
+      console.log("Server closed gracefully.");
+      process.exit(1);
+    });
+  }
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
+// SIGINT signal handler
+
+process.on("SIGINT", () => {
+  console.log("SIGINT signal received. Shutting down server...");
+
+  if (server) {
+    server.close(() => {
+      console.log("Server closed gracefully.");
+      process.exit(1);
+    });
+  }
+
+  process.exit(1);
 });
+
+//uncaught exception handler
+process.on("uncaughtException", (error) => {
+  console.log("Uncaught Exception Detected... Shutting down server", error);
+
+  if (server) {
+    server.close(() => {
+      process.exit(1);
+    });
+  }
+
+  process.exit(1);
+});
+
+process.on("unhandledRejection", (error) => {
+  console.log("Unhandled Rejection Detected... Shutting down server", error);
+
+  if (server) {
+    server.close(() => {
+      process.exit(1);
+    });
+  }
+
+  process.exit(1);
+});
+
+//unhandled rejection handler
+
+bootstrap();
