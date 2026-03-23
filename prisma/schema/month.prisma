@@ -17,4 +17,7 @@ model Month {
   expenses Expense[]
 
   @@unique([houseId, name])
+
+  @@index([houseId])
+  @@map("months")
 }

@@ -10,4 +10,8 @@ model HouseMember {
   house House @relation(fields: [houseId], references: [id])
 
   @@unique([userId, houseId])
+
+  @@index([userId])
+  @@index([houseId])
+  @@map("house_members")
 }

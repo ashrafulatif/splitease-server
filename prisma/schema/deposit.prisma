@@ -14,4 +14,7 @@ model Deposit {
   house House @relation(fields: [houseId], references: [id])
   month Month @relation(fields: [monthId], references: [id])
   user  User  @relation(fields: [userId], references: [id])
+
+  @@index([houseId, monthId, userId])
+  @@map("deposits")
 }

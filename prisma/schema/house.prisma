@@ -15,4 +15,7 @@ model House {
   deposits    Deposit[]
   expenses    Expense[]
   meals       Meal[]
+
+  @@index([createdBy])
+  @@map("houses")
 }

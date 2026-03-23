@@ -16,4 +16,7 @@ model Expense {
   house House @relation(fields: [houseId], references: [id])
   month Month @relation(fields: [monthId], references: [id])
   creator User @relation("ExpenseCreator", fields: [createdBy], references: [id])
+
+  @@index([houseId, monthId])
+  @@map("expenses")
 }

@@ -15,4 +15,8 @@ model Subscription {
   plan Plan @relation(fields: [planId], references: [id])
 
   payments Payment[]
+
+  @@index([userId])
+  @@index([planId])
+  @@map("subscriptions")
 }

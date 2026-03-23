@@ -16,4 +16,7 @@ model Meal {
   user  User  @relation(fields: [userId], references: [id])
 
   @@unique([userId, date, mealType])
+
+  @@index([houseId, monthId, userId])
+  @@map("meals")
 }
