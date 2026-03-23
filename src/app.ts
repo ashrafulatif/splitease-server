@@ -9,6 +9,7 @@ import { envVars } from "./app/config/env";
 import qs from "qs";
 import { auth } from "./app/lib/auth";
 import { toNodeHandler } from "better-auth/node";
+import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
 
 const app: Application = express();
 
@@ -46,5 +47,7 @@ app.get("/", (req: Request, res: Response) => {
   res.send("SplitEase - Smart Expense management!");
 });
 app.use(notFound);
+
+app.use(globalErrorHandler);
 
 export default app;
