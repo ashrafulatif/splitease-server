@@ -1,0 +1,19 @@
+model Expense {
+  id          String           @id @default(uuid())
+
+  houseId     String
+  monthId     String
+
+  type        ExpenseTypeEnum
+  amount      Float
+  description String?
+
+  createdBy   String
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  house House @relation(fields: [houseId], references: [id])
+  month Month @relation(fields: [monthId], references: [id])
+  creator User @relation("ExpenseCreator", fields: [createdBy], references: [id])
+}

@@ -1,0 +1,12 @@
+model Plan {
+  id            String   @id @default(uuid())
+
+  name          String
+  price         Float
+  durationDays  Int
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  subscriptions Subscription[]
+}

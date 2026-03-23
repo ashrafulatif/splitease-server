@@ -1,0 +1,34 @@
+
+enum UserRole {
+  ADMIN
+  MANAGER
+  MEMBER
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+enum ExpenseTypeEnum {
+  MEAL
+  RENT
+  GAS
+  ELECTRICITY
+  INTERNET
+  WATER
+  OTHER
+}
+
+enum MealEnum {
+  BREAKFAST
+  LUNCH
+  DINNER
+}

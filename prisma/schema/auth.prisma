@@ -9,6 +9,18 @@ model User {
   sessions      Session[]
   accounts      Account[]
 
+
+  // Relations
+  housesCreated   House[]          @relation("HouseCreator")
+  houseMembers    HouseMember[]
+
+  meals           Meal[]
+  deposits        Deposit[]
+  expenses        Expense[]        @relation("ExpenseCreator")
+
+  subscriptions   Subscription[]
+  payments        Payment[]
+
   @@unique([email])
   @@map("user")
 }

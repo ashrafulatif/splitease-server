@@ -1,0 +1,13 @@
+model HouseMember {
+  id        String   @id @default(uuid())
+  userId    String
+  houseId   String
+  role      UserRole @default(MEMBER)
+
+  createdAt DateTime @default(now())
+
+  user  User  @relation(fields: [userId], references: [id])
+  house House @relation(fields: [houseId], references: [id])
+
+  @@unique([userId, houseId])
+}

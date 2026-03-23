@@ -1,0 +1,20 @@
+model Month {
+  id        String   @id @default(uuid())
+  houseId   String
+
+  name      String
+  startDate DateTime
+  endDate   DateTime
+  isClosed  Boolean  @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  house House @relation(fields: [houseId], references: [id])
+
+  meals    Meal[]
+  deposits Deposit[]
+  expenses Expense[]
+
+  @@unique([houseId, name])
+}
