@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "user" ADD COLUMN     "isDeleted" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "needPasswordChange" BOOLEAN NOT NULL DEFAULT false,
+ADD COLUMN     "role" TEXT NOT NULL DEFAULT 'MANAGER',
+ADD COLUMN     "status" TEXT NOT NULL DEFAULT 'ACTIVE';

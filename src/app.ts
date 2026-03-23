@@ -7,6 +7,8 @@ import path from "path";
 import cors from "cors";
 import { envVars } from "./app/config/env";
 import qs from "qs";
+import { auth } from "./app/lib/auth";
+import { toNodeHandler } from "better-auth/node";
 
 const app: Application = express();
 
@@ -29,6 +31,8 @@ app.use(
     allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
+
+app.use("/api/auth", toNodeHandler(auth));
 
 app.use(express.urlencoded({ extended: true }));
 

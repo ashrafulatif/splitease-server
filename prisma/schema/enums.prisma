@@ -5,6 +5,12 @@ enum UserRole {
   MEMBER
 }
 
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
 enum SubscriptionStatus {
   ACTIVE
   EXPIRED

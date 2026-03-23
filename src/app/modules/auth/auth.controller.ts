@@ -1,19 +1,52 @@
 import { Request, Response } from "express";
 import { AuthService } from "./auth.service";
+import { catchAsync } from "../../shared/catchAsync";
+import { sendResponse } from "../../shared/sendResponse";
+import status from "http-status";
+import { tokenUtils } from "../../utils/token";
 
-export const login = async (req: Request, res: Response) => {
-  const payload = req.body;
+const registerManager = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.registerManager(req.body);
 
-  console.log(payload);
+  const { token, accessToken, refreshToken, ...rest } = result;
 
-  const result = await AuthService.loginUser(payload);
-  return res.status(200).json({
+  //set all cookie
+  tokenUtils.setAccessTokenCookie(res, accessToken);
+  tokenUtils.setRefreshTokenCookie(res, refreshToken);
+  tokenUtils.setBetterAuthSessionCookie(res, token as string);
+
+  sendResponse(res, {
+    statusCode: status.CREATED,
     success: true,
-    message: "User logged in successfully",
-    data: result,
+    message: "User Resgister Successfully",
+    data: {
+      token,
+      accessToken,
+      refreshToken,
+      ...rest,
+    },
   });
-};
+});
+
+const loginUser = catchAsync(async (req: Request, res: Response) => {
+  const result = await AuthService.loginUser(req.body);
+
+  const { token, accessToken, refreshToken, ...rest } = result;
+
+  //set all cookie
+  tokenUtils.setAccessTokenCookie(res, accessToken);
+  tokenUtils.setRefreshTokenCookie(res, refreshToken);
+  tokenUtils.setBetterAuthSessionCookie(res, token);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Login Successful",
+    data: { token, accessToken, refreshToken, ...rest },
+  });
+});
 
 export const AuthController = {
-  login,
+  registerManager,
+  loginUser,
 };
