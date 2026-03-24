@@ -6,8 +6,8 @@ model HouseMember {
 
   createdAt DateTime @default(now())
 
-  user  User  @relation(fields: [userId], references: [id])
-  house House @relation(fields: [houseId], references: [id])
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  house House @relation(fields: [houseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, houseId])
 

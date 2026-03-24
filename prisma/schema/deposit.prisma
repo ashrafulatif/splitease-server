@@ -11,9 +11,9 @@ model Deposit {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  house House @relation(fields: [houseId], references: [id])
-  month Month @relation(fields: [monthId], references: [id])
-  user  User  @relation(fields: [userId], references: [id])
+  house House @relation(fields: [houseId], references: [id], onDelete: Cascade)
+  month Month @relation(fields: [monthId], references: [id], onDelete: Cascade)
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([houseId, monthId, userId])
   @@map("deposits")

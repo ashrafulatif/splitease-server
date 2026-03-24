@@ -1,4 +1,3 @@
-// src/app/modules/houses/houses.service.ts
 import status from "http-status";
 import { prisma } from "../../lib/prisma";
 import AppError from "../../errorHelpers/AppError";
@@ -43,6 +42,7 @@ const getAllHouses = async () => {
   });
 };
 
+///TODO : add limit for create house for free users
 const createHouse = async (
   payload: ICreateHousePayload,
   user: IRequestUser,
@@ -51,6 +51,23 @@ const createHouse = async (
 
   if (!name) {
     throw new AppError(status.BAD_REQUEST, "House name is required");
+  }
+
+  const isDuplicateHouse = await prisma.house.findFirst({
+    where: {
+      createdBy: user.userId,
+      name: {
+        equals: name,
+        mode: "insensitive",
+      },
+    },
+  });
+
+  if (isDuplicateHouse) {
+    throw new AppError(
+      status.CONFLICT,
+      "You already have a house with this name",
+    );
   }
 
   const house = await prisma.$transaction(async (tx) => {
@@ -62,6 +79,7 @@ const createHouse = async (
       },
     });
 
+    //update in house member
     await tx.houseMember.create({
       data: {
         houseId: createdHouse.id,
@@ -183,16 +201,8 @@ const deleteHouse = async (id: string, user: IRequestUser) => {
     );
   }
 
-  return prisma.$transaction(async (tx) => {
-    await tx.meal.deleteMany({ where: { houseId: id } });
-    await tx.deposit.deleteMany({ where: { houseId: id } });
-    await tx.expense.deleteMany({ where: { houseId: id } });
-    await tx.month.deleteMany({ where: { houseId: id } });
-    await tx.houseMember.deleteMany({ where: { houseId: id } });
-
-    return tx.house.delete({
-      where: { id },
-    });
+  return prisma.house.delete({
+    where: { id },
   });
 };
 

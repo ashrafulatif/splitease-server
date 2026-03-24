@@ -10,7 +10,7 @@ model Month {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  house House @relation(fields: [houseId], references: [id])
+  house House @relation(fields: [houseId], references: [id], onDelete: Cascade)
 
   meals    Meal[]
   deposits Deposit[]

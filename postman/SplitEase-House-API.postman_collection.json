@@ -1,0 +1,316 @@
+{
+  "info": {
+    "_postman_id": "8a364a72-6fef-4e79-bf4c-d80c462b0ac2",
+    "name": "SplitEase House API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Postman collection for testing SplitEase auth + house module APIs."
+  },
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "const rawUrl = pm.request.url.toString();",
+          "const authExclusions = ['/auth/register', '/auth/login', '/auth/verify-email', '/auth/forget-password', '/auth/reset-password', '/auth/login/google', '/auth/google/success', '/auth/oauth/error'];",
+          "const shouldSkipCookie = authExclusions.some((path) => rawUrl.includes(path));",
+          "if (!shouldSkipCookie) {",
+          "  const accessToken = pm.collectionVariables.get('accessToken') || pm.environment.get('accessToken');",
+          "  const sessionToken = pm.collectionVariables.get('sessionToken') || pm.environment.get('sessionToken');",
+          "  if (accessToken && sessionToken) {",
+          "    pm.request.headers.upsert({ key: 'Cookie', value: `accessToken=${accessToken}; better-auth.session_token=${sessionToken}` });",
+          "  }",
+          "}"
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          "let json = null;",
+          "try { json = pm.response.json(); } catch (e) {}",
+          "if (json?.data?.accessToken) {",
+          "  pm.collectionVariables.set('accessToken', json.data.accessToken);",
+          "  pm.environment.set('accessToken', json.data.accessToken);",
+          "}",
+          "if (json?.data?.token) {",
+          "  pm.collectionVariables.set('sessionToken', json.data.token);",
+          "  pm.environment.set('sessionToken', json.data.token);",
+          "}",
+          "if (json?.data?.id && pm.request.url.toString().includes('/houses')) {",
+          "  pm.collectionVariables.set('houseId', json.data.id);",
+          "  pm.environment.set('houseId', json.data.id);",
+          "}",
+          "if (Array.isArray(json?.data) && json.data.length > 0 && json.data[0]?.id && pm.request.url.toString().includes('/houses')) {",
+          "  pm.collectionVariables.set('houseId', json.data[0].id);",
+          "  pm.environment.set('houseId', json.data[0].id);",
+          "}",
+          "pm.test('Status code is not server error', function () {",
+          "  pm.expect(pm.response.code).to.be.below(500);",
+          "});"
+        ]
+      }
+    }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Manager",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Manager User\",\n  \"email\": \"manager@example.com\",\n  \"password\": \"Pass@1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json?.data?.accessToken) pm.collectionVariables.set('accessToken', json.data.accessToken);",
+                  "if (json?.data?.token) pm.collectionVariables.set('sessionToken', json.data.token);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"manager@example.com\",\n  \"password\": \"Pass@1234\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "accessToken={{accessToken}}; better-auth.session_token={{sessionToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "accessToken={{accessToken}}; better-auth.session_token={{sessionToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["auth", "logout"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Houses",
+      "item": [
+        {
+          "name": "Create House (ADMIN/MANAGER)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json?.data?.id) pm.collectionVariables.set('houseId', json.data.id);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "accessToken={{accessToken}}; better-auth.session_token={{sessionToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Demo House\",\n  \"description\": \"House for API test\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/houses",
+              "host": ["{{baseUrl}}"],
+              "path": ["houses"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Houses (MANAGER/MEMBER)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "accessToken={{accessToken}}; better-auth.session_token={{sessionToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/houses/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["houses", "my"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Houses (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "accessToken={{accessToken}}; better-auth.session_token={{sessionToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/houses",
+              "host": ["{{baseUrl}}"],
+              "path": ["houses"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get House By Id (ADMIN)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "accessToken={{accessToken}}; better-auth.session_token={{sessionToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/houses/{{houseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["houses", "{{houseId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update House (ADMIN/MANAGER)",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Cookie",
+                "value": "accessToken={{accessToken}}; better-auth.session_token={{sessionToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Demo House Updated\",\n  \"description\": \"Updated description\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/houses/update/{{houseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["houses", "update", "{{houseId}}"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete House (ADMIN/MANAGER)",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": "accessToken={{accessToken}}; better-auth.session_token={{sessionToken}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/houses/delete/{{houseId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["houses", "delete", "{{houseId}}"]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:4000/api/v1"
+    },
+    {
+      "key": "accessToken",
+      "value": ""
+    },
+    {
+      "key": "sessionToken",
+      "value": ""
+    },
+    {
+      "key": "houseId",
+      "value": ""
+    }
+  ]
+}

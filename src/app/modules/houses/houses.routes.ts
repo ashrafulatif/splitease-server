@@ -1,4 +1,3 @@
-// src/app/modules/houses/houses.routes.ts
 import { Router } from "express";
 import { HouseController } from "./houses.controller";
 import { CheckAuth } from "../../middleware/checkAuth";
