@@ -7,6 +7,7 @@ import { MealRoutes } from "../modules/meal/meal.routes";
 import { DepositRoutes } from "../modules/deposit/deposit.routes";
 import { ExpensesRoutes } from "../modules/expenses/expenses.routes";
 import { StatsRoutes } from "../modules/stats/stats.routes";
+import { PlansRoutes } from "../modules/plans/plans.routes";
 
 const router = Router();
 
@@ -26,7 +27,7 @@ router.use("/expenses", ExpensesRoutes);
 
 router.use("/stats", StatsRoutes);
 
-// router.use("/plans", PlansRoutes);
+router.use("/plans", PlansRoutes);
 
 // router.use("/subscription", SubscriptioRoutes)
 

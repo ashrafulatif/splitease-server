@@ -4,6 +4,7 @@ model Plan {
   name          String
   price         Float
   durationDays  Int
+  features      String[] @default([])
 
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
