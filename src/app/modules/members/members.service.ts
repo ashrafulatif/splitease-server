@@ -1,10 +1,12 @@
 import status from "http-status";
-import { randomUUID } from "crypto";
 import { prisma } from "../../lib/prisma";
 import AppError from "../../errorHelpers/AppError";
 import { IRequestUser } from "../../interfaces/requestUser.interface";
 import { UserRole } from "../../../generated/prisma/enums";
 import { IAddMemberToHousePayload } from "./members.interface";
+import { auth } from "../../lib/auth";
+import { sendEmail } from "../../utils/emall";
+
 
 const memberDetailsInclude = {
   user: {
@@ -60,38 +62,96 @@ const addMemberToHouse = async (
     );
   }
 
-  return prisma.$transaction(async (tx) => {
-    const normalizedEmail = email.toLowerCase().trim();
+  const normalizedEmail = email;
 
-    const existingUser = await tx.user.findUnique({
-      where: { email: normalizedEmail },
-    });
+  const existingUser = await prisma.user.findUnique({
+    where: { email: normalizedEmail },
+  });
 
-    if (existingUser && !existingUser.isDeleted) {
-      throw new AppError(
-        status.CONFLICT,
-        "User with this email already exists",
-      );
-    }
+  if (existingUser && !existingUser.isDeleted) {
+    throw new AppError(status.CONFLICT, "User with this email already exists");
+  }
 
-    const createdUser = await tx.user.create({
-      data: {
-        id: randomUUID(),
+  if (existingUser?.isDeleted) {
+    throw new AppError(
+      status.CONFLICT,
+      "A deleted user already exists with this email",
+    );
+  }
+
+  const temporaryPassword = `Member@${Math.random().toString(36).slice(-8)}`;
+
+  let createdUserId: string | null = null;
+
+  try {
+    const signUpData = await auth.api.signUpEmail({
+      body: {
         name,
         email: normalizedEmail,
-        role: UserRole.MEMBER,
+        password: temporaryPassword,
       },
     });
 
-    return tx.houseMember.create({
-      data: {
-        houseId,
-        userId: createdUser.id,
-        role: role ?? UserRole.MEMBER,
-      },
-      include: memberDetailsInclude,
+    if (!signUpData.user) {
+      throw new AppError(status.BAD_REQUEST, "Failed to create member account");
+    }
+
+    createdUserId = signUpData.user.id;
+
+    const result = await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id: createdUserId as string },
+        data: {
+          role: UserRole.MEMBER,
+          needPasswordChange: true,
+        },
+      });
+
+      const existingMembership = await tx.houseMember.findFirst({
+        where: {
+          houseId,
+          userId: createdUserId as string,
+        },
+      });
+
+      if (existingMembership) {
+        throw new AppError(
+          status.CONFLICT,
+          "This user is already a member of this house",
+        );
+      }
+
+      return tx.houseMember.create({
+        data: {
+          houseId,
+          userId: createdUserId as string,
+          role: role ?? UserRole.MEMBER,
+        },
+        include: memberDetailsInclude,
+      });
     });
-  });
+
+    await sendEmail({
+      to: normalizedEmail,
+      subject: "Your SplitEase member account credentials",
+      templateName: "memberCredentials",
+      templateData: {
+        name,
+        email: normalizedEmail,
+        password: temporaryPassword,
+      },
+    });
+
+    return result;
+  } catch (error) {
+    if (createdUserId) {
+      await prisma.user.delete({
+        where: { id: createdUserId },
+      });
+    }
+
+    throw error;
+  }
 };
 
 const getAllMembers = async (user: IRequestUser) => {

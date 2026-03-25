@@ -8,6 +8,8 @@ import { DepositRoutes } from "../modules/deposit/deposit.routes";
 import { ExpensesRoutes } from "../modules/expenses/expenses.routes";
 import { StatsRoutes } from "../modules/stats/stats.routes";
 import { PlansRoutes } from "../modules/plans/plans.routes";
+import { SubscriptionRoutes } from "../modules/subscription/subscription.routes";
+import { PaymentRoutes } from "../modules/payments/payments.routes";
 
 const router = Router();
 
@@ -29,8 +31,8 @@ router.use("/stats", StatsRoutes);
 
 router.use("/plans", PlansRoutes);
 
-// router.use("/subscription", SubscriptioRoutes)
+router.use("/subscription", SubscriptionRoutes);
 
-// router.use("/payments", PaymentRoutes)
+router.use("/payments", PaymentRoutes);
 
 export const IndexRouter = router;

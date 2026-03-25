@@ -1,0 +1,880 @@
+{
+  "info": {
+    "name": "SplitEase Server API",
+    "description": "Postman collection for SplitEase server endpoints. Uses collection variable baseUrl only.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_postman_id": "f6ecfb95-0b7a-4a93-8d16-2cbe03611118"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "System",
+      "item": [
+        {
+          "name": "Health / Root",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Stripe Webhook",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/webhook",
+              "host": ["{{baseUrl}}"],
+              "path": ["webhook"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register Manager",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Atif\",\n  \"email\": \"atif@example.com\",\n  \"password\": \"Password@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "register"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"atif@example.com\",\n  \"password\": \"Password@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Logout",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "logout"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Change Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"Password@123\",\n  \"newPassword\": \"NewPassword@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/change-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "change-password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Verify Email",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"atif@example.com\",\n  \"otp\": \"123456\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/verify-email",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "verify-email"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Forget Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"atif@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/forget-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "forget-password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Reset Password",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"atif@example.com\",\n  \"token\": \"reset_token\",\n  \"newPassword\": \"NewPassword@123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/reset-password",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "reset-password"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Me",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "me"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Google Login",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/login/google",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "login", "google"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Google Success",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/google/success",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "google", "success"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "OAuth Error",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/auth/oauth/error",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "auth", "oauth", "error"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Houses",
+      "item": [
+        {
+          "name": "Get All Houses",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/houses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "houses"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create House",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"House A\",\n  \"address\": \"Dhaka\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/houses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "houses"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get My Houses",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/houses/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "houses", "my"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get House By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/houses/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "houses", ":id"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update House",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Updated House\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/houses/update/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "houses", "update", ":id"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete House",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/houses/delete/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "houses", "delete", ":id"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "House Members",
+      "item": [
+        {
+          "name": "Add Member To House",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"houseId\": \"house_id\",\n  \"email\": \"member@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/house-members",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "house-members"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Members",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/house-members",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "house-members"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get House Member",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/house-members/house-members/:houseId",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v1",
+                "house-members",
+                "house-members",
+                ":houseId"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Member By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/house-members/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "house-members", ":id"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Member",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/house-members/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "house-members", ":id"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Months",
+      "item": [
+        {
+          "name": "Create Month",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"houseId\": \"house_id\",\n  \"month\": 3,\n  \"year\": 2026\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/months",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "months"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get House Months",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/months/house/:houseId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "months", "house", ":houseId"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Month By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/months/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "months", ":id"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Month",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/months/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "months", ":id"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Meals",
+      "item": [
+        {
+          "name": "Add Meal",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"monthId\": \"month_id\",\n  \"count\": 1\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/meals",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "meals"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Meals By Month",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/meals/month/:monthId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "meals", "month", ":monthId"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Meal By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/meals/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "meals", ":id"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Meal",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"count\": 2\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/meals/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "meals", ":id"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Meal",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/meals/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "meals", ":id"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Deposits",
+      "item": [
+        {
+          "name": "Create Deposit",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"monthId\": \"month_id\",\n  \"amount\": 500\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/deposits",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "deposits"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Deposits By Month",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/deposits",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "deposits"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Deposit By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/deposits/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "deposits", ":id"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Deposit",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 750\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/deposits/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "deposits", ":id"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Deposit",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/deposits/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "deposits", ":id"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Expenses",
+      "item": [
+        {
+          "name": "Create Expense",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"monthId\": \"month_id\",\n  \"amount\": 100,\n  \"title\": \"Gas Bill\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/expenses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "expenses"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Expenses By Month",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/expenses",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "expenses"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Expense By ID",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/expenses/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "expenses", ":id"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Expense",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"amount\": 150\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/expenses/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "expenses", ":id"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Expense",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/expenses/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "expenses", ":id"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Stats",
+      "item": [
+        {
+          "name": "Monthly Summary",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/stats/summary/:monthId",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "stats", "summary", ":monthId"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Plans",
+      "item": [
+        {
+          "name": "Get Plans",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/plans",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "plans"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Plan",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Premium\",\n  \"price\": 999\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/plans",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "plans"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Plan",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 1099\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/plans/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "plans", ":id"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Plan",
+          "request": {
+            "method": "DELETE",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/plans/:id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "plans", ":id"]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Subscription",
+      "item": [
+        {
+          "name": "Get My Subscription",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/subscription/my",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "v1", "subscription", "my"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Initiate Subscription Payment",
+          "request": {
+            "method": "POST",
+            "url": {
+              "raw": "{{baseUrl}}/api/v1/subscription/initiate-payment/:planId",
+              "host": ["{{baseUrl}}"],
+              "path": [
+                "api",
+                "v1",
+                "subscription",
+                "initiate-payment",
+                ":planId"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
