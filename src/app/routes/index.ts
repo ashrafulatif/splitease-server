@@ -6,6 +6,7 @@ import { MonthRoutes } from "../modules/month/month.routes";
 import { MealRoutes } from "../modules/meal/meal.routes";
 import { DepositRoutes } from "../modules/deposit/deposit.routes";
 import { ExpensesRoutes } from "../modules/expenses/expenses.routes";
+import { StatsRoutes } from "../modules/stats/stats.routes";
 
 const router = Router();
 
@@ -22,5 +23,13 @@ router.use("/meals", MealRoutes);
 router.use("/deposits", DepositRoutes);
 
 router.use("/expenses", ExpensesRoutes);
+
+router.use("/stats", StatsRoutes);
+
+// router.use("/plans", PlansRoutes);
+
+// router.use("/subscription", SubscriptioRoutes)
+
+// router.use("/payments", PaymentRoutes)
 
 export const IndexRouter = router;
