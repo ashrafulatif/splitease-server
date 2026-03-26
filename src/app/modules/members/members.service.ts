@@ -7,7 +7,6 @@ import { IAddMemberToHousePayload } from "./members.interface";
 import { auth } from "../../lib/auth";
 import { sendEmail } from "../../utils/emall";
 
-
 const memberDetailsInclude = {
   user: {
     select: {
@@ -79,7 +78,7 @@ const addMemberToHouse = async (
     );
   }
 
-  const temporaryPassword = `Member@${Math.random().toString(36).slice(-8)}`;
+  const temporaryPassword = `Member@${Math.random().toString(36).slice(-2)}`;
 
   let createdUserId: string | null = null;
 
@@ -103,6 +102,7 @@ const addMemberToHouse = async (
         where: { id: createdUserId as string },
         data: {
           role: UserRole.MEMBER,
+          emailVerified: true,
           needPasswordChange: true,
         },
       });
@@ -309,8 +309,17 @@ const deleteMember = async (id: string, user: IRequestUser) => {
     );
   }
 
-  return prisma.houseMember.delete({
-    where: { id },
+  return prisma.$transaction(async (tx) => {
+    const deletedMember = await tx.houseMember.delete({
+      where: { id },
+    });
+
+    await tx.user.update({
+      where: { id: deletedMember.userId },
+      data: { isDeleted: true },
+    });
+
+    return deletedMember;
   });
 };
 

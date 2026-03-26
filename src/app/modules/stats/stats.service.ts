@@ -65,6 +65,11 @@ const getMonthlySummary = async (monthId: string, user: IRequestUser) => {
 
   const totalExpense = expenseAggregate._sum.amount ?? 0;
   const totalMeals = meals.length;
+  const totalDeposit = deposits.reduce(
+    (sum, deposit) => sum + deposit.amount,
+    0,
+  );
+  const currentBalance = Number((totalDeposit - totalExpense).toFixed(2));
 
   const mealRate =
     totalMeals > 0 ? Number((totalExpense / totalMeals).toFixed(2)) : 0;
@@ -109,6 +114,7 @@ const getMonthlySummary = async (monthId: string, user: IRequestUser) => {
     mealRate,
     totalExpense,
     totalMeals,
+    currentBalance,
     users,
   };
 };
