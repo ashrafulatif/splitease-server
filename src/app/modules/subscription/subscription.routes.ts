@@ -5,16 +5,22 @@ import { UserRole } from "../../../generated/prisma/enums";
 
 const router = Router();
 
+router.post(
+  "/initiate-payment/:planId",
+  CheckAuth(UserRole.MANAGER, UserRole.MEMBER),
+  SubscriptionController.initiateSubscription,
+);
+
 router.get(
   "/my",
   CheckAuth(UserRole.MANAGER, UserRole.MEMBER),
   SubscriptionController.getMySubscription,
 );
 
-router.post(
-  "/initiate-payment/:planId",
-  CheckAuth(UserRole.MANAGER, UserRole.MEMBER),
-  SubscriptionController.initiateSubscription,
+router.get(
+  "/",
+  CheckAuth(UserRole.ADMIN),
+  SubscriptionController.getSubscriptionList,
 );
 
 export const SubscriptionRoutes = router;

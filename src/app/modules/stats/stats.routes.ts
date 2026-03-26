@@ -6,9 +6,15 @@ import { UserRole } from "../../../generated/prisma/enums";
 const router = Router();
 
 router.get(
-	"/summary/:monthId",
-	CheckAuth(UserRole.MANAGER, UserRole.MEMBER),
-	StatsController.getMonthlySummary,
+  "/dashboard",
+  CheckAuth(UserRole.ADMIN, UserRole.MANAGER, UserRole.MEMBER),
+  StatsController.getDashboardStatsData,
+);
+
+router.get(
+  "/summary/:monthId",
+  CheckAuth(UserRole.MANAGER, UserRole.MEMBER),
+  StatsController.getMonthlySummary,
 );
 
 export const StatsRoutes = router;

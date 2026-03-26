@@ -4,8 +4,12 @@ import { tokenUtils } from "../../utils/token";
 import AppError from "../../errorHelpers/AppError";
 import { UserStatus } from "../../../generated/prisma/enums";
 import { prisma } from "../../lib/prisma";
-import { IChangePasswordPayload } from "./auth.interface";
+import {
+  IChangePasswordPayload,
+  IUpdateProfilePayload,
+} from "./auth.interface";
 import { IRequestUser } from "../../interfaces/requestUser.interface";
+import { deleteFileFromCloudinary } from "../../config/cloudinary.config";
 
 interface IRegiserData {
   name: string;
@@ -289,6 +293,59 @@ const googleLoginSuccess = async (session: Record<string, any>) => {
   };
 };
 
+const updateProfile = async (
+  user: IRequestUser,
+  payload: IUpdateProfilePayload,
+) => {
+  //check user existence
+  const isUserExist = await prisma.user.findUnique({
+    where: {
+      id: user.userId,
+    },
+  });
+
+  if (!isUserExist) {
+    throw new AppError(status.NOT_FOUND, "User not found");
+  }
+
+  const updateData: Record<string, unknown> = {};
+
+  // Update name if provided
+  if (payload.name) {
+    updateData.name = payload.name;
+  }
+
+  // Handle image upload if file is provided
+  if (payload.image) {
+    // Delete old image if it exists
+    if (isUserExist.image) {
+      try {
+        await deleteFileFromCloudinary(isUserExist.image);
+      } catch (error) {
+        console.error("Error deleting old image:", error);
+      }
+    }
+
+    // Upload new image to Cloudinary
+    // multer-storage-cloudinary automatically uploads to Cloudinary
+    // and provides the upload result in req.file
+    // The file.path contains the Cloudinary secure URL
+    updateData.image = payload.image.path || payload.image.filename;
+  }
+
+  // Update user in database
+  const updatedUser = await prisma.user.update({
+    where: { id: user.userId },
+    data: updateData,
+    include: {
+      subscriptions: true,
+      expenses: true,
+    },
+  });
+
+  return updatedUser;
+};
+
 export const AuthService = {
   registerManager,
   loginUser,
@@ -299,4 +356,5 @@ export const AuthService = {
   resetPassword,
   changePassword,
   getMe,
+  updateProfile,
 };

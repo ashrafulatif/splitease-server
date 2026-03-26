@@ -3,7 +3,7 @@ export interface ILoginUserPayload {
   password: string;
 }
 
-export interface IRegisterPatientPayload {
+export interface IRegisterPayload {
   name: string;
   email: string;
   password: string;
@@ -12,4 +12,9 @@ export interface IRegisterPatientPayload {
 export interface IChangePasswordPayload {
   currentPassword: string;
   newPassword: string;
+}
+
+export interface IUpdateProfilePayload {
+  name?: string;
+  image?: Express.Multer.File;
 }

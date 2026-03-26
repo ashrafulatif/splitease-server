@@ -189,6 +189,24 @@ const googleLoginSuccess = catchAsync(async (req: Request, res: Response) => {
   res.redirect(`${envVars.FRONTEND_URL}${finalRedirectPath}`);
 });
 
+const updateProfile = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user;
+
+  const payload = {
+    name: req.body.name,
+    image: req.file,
+  };
+
+  const result = await AuthService.updateProfile(user, payload);
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Profile updated successfully",
+    data: result,
+  });
+});
+
 const handleOAuthError = catchAsync(async (req: Request, res: Response) => {
   const error = (req.query.error as string) || "oauth_failed";
 
@@ -207,4 +225,5 @@ export const AuthController = {
   verifyEmail,
   changePassword,
   getMe,
+  updateProfile,
 };

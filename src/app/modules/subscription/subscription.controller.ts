@@ -29,7 +29,18 @@ const initiateSubscription = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getSubscriptionList = catchAsync(async (req: Request, res: Response) => {
+  const result = await SubscriptionService.getSubscriptionList();
+
+  sendResponse(res, {
+    statusCode: status.OK,
+    success: true,
+    message: "Subscription list retrieved successfully",
+    data: result,
+  });
+});
 export const SubscriptionController = {
   getMySubscription,
   initiateSubscription,
+  getSubscriptionList,
 };

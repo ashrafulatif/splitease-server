@@ -30,6 +30,12 @@ const getMySubscription = async (user: IRequestUser) => {
       payments: {
         orderBy: { createdAt: "desc" },
         take: 1,
+        select: {
+          id: true,
+          amount: true,
+          status: true,
+          createdAt: true,
+        },
       },
     },
   });
@@ -131,7 +137,35 @@ const initiateSubscription = async (planId: string, user: IRequestUser) => {
   };
 };
 
+const getSubscriptionList = async () => {
+  const subscriptions = await prisma.subscription.findMany({
+    include: {
+      user: {
+        select: {
+          id: true,
+          name: true,
+          email: true,
+        },
+      },
+      plan: true,
+      payments: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: {
+          id: true,
+          amount: true,
+          status: true,
+          createdAt: true,
+        },
+      },
+    },
+  });
+
+  return subscriptions;
+};
+
 export const SubscriptionService = {
   getMySubscription,
   initiateSubscription,
+  getSubscriptionList,
 };

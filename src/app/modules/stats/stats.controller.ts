@@ -4,6 +4,19 @@ import { StatsService } from "./stats.service";
 import { sendResponse } from "../../shared/sendResponse";
 import status from "http-status";
 
+const getDashboardStatsData = catchAsync(
+  async (req: Request, res: Response) => {
+    const result = await StatsService.getDashboardStatsData(req.user);
+
+    sendResponse(res, {
+      statusCode: status.OK,
+      success: true,
+      message: "Dashboard stats retrieved successfully",
+      data: result,
+    });
+  },
+);
+
 const getMonthlySummary = catchAsync(async (req: Request, res: Response) => {
   const { monthId } = req.params;
 
@@ -20,5 +33,6 @@ const getMonthlySummary = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const StatsController = {
+  getDashboardStatsData,
   getMonthlySummary,
 };
