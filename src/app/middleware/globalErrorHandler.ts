@@ -7,7 +7,7 @@ import { TErrorResponse, TErrorSources } from "../interfaces/error.interface";
 import z from "zod";
 import { handleZodError } from "../errorHelpers/handleZodError";
 import AppError from "../errorHelpers/AppError";
-// import { deleteUploadedFilesFromGlobalErrorHandler } from "../utils/deleteUploadedFilesFromGlobalErrHandler";
+
 import { Prisma } from "../../generated/prisma/client";
 import {
   handlePrismaClientKnownRequestError,
@@ -16,6 +16,7 @@ import {
   handlerPrismaClientInitializationError,
   handlerPrismaClientRustPanicError,
 } from "../errorHelpers/handlePrismaError";
+import { deleteFileFromCloudinary } from "../config/cloudinary.config";
 
 export const globalErrorHandler = async (
   err: any,
@@ -32,7 +33,14 @@ export const globalErrorHandler = async (
   let stack: string | undefined = undefined;
 
   //file upload delete on request error
-  // await deleteUploadedFilesFromGlobalErrorHandler(req);
+  if (req.file) {
+    //delete the uploaded file from cloudinary
+    try {
+      await deleteFileFromCloudinary(req.file.path);
+    } catch (error) {
+      console.error("Error deleting file from Cloudinary:", error);
+    }
+  }
 
   //prisma error
   if (err instanceof Prisma.PrismaClientKnownRequestError) {

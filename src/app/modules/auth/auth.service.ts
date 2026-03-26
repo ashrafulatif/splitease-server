@@ -326,10 +326,6 @@ const updateProfile = async (
       }
     }
 
-    // Upload new image to Cloudinary
-    // multer-storage-cloudinary automatically uploads to Cloudinary
-    // and provides the upload result in req.file
-    // The file.path contains the Cloudinary secure URL
     updateData.image = payload.image.path || payload.image.filename;
   }
 
@@ -337,10 +333,6 @@ const updateProfile = async (
   const updatedUser = await prisma.user.update({
     where: { id: user.userId },
     data: updateData,
-    include: {
-      subscriptions: true,
-      expenses: true,
-    },
   });
 
   return updatedUser;
