@@ -13,7 +13,8 @@
     "studio": "prisma studio",
     "push": "prisma db push",
     "pull": "prisma db pull",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "seed:admin": "npx tsx ./src/app/scripts/seedAdmin.ts"
   },
   "keywords": [],
   "author": "",
