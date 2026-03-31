@@ -39,7 +39,7 @@ const createDeposit = async (
   payload: ICreateDepositPayload,
   user: IRequestUser,
 ) => {
-  const { houseId, monthId, amount, note } = payload;
+  const { houseId, monthId, amount, note, userId } = payload;
 
   if (!amount || amount <= 0) {
     throw new AppError(status.BAD_REQUEST, "Amount must be greater than 0");
@@ -82,11 +82,54 @@ const createDeposit = async (
     );
   }
 
+  const requesterRole = month.house.members[0]?.role;
+  const isManager =
+    month.house.createdBy === user.userId ||
+    requesterRole === UserRole.ADMIN ||
+    requesterRole === UserRole.MANAGER;
+
+  const targetUserId = userId ?? user.userId;
+
+  if (!isManager && targetUserId !== user.userId) {
+    throw new AppError(
+      status.FORBIDDEN,
+      "You are not authorized to add deposit for other members",
+    );
+  }
+
+  if (isManager) {
+    const isTargetUserInHouse = await prisma.house.findFirst({
+      where: {
+        id: houseId,
+        OR: [
+          {
+            createdBy: targetUserId,
+          },
+          {
+            members: {
+              some: {
+                userId: targetUserId,
+              },
+            },
+          },
+        ],
+      },
+      select: { id: true },
+    });
+
+    if (!isTargetUserInHouse) {
+      throw new AppError(
+        status.NOT_FOUND,
+        "Target user is not a member of this house",
+      );
+    }
+  }
+
   return prisma.deposit.create({
     data: {
       houseId,
       monthId,
-      userId: user.userId,
+      userId: targetUserId,
       amount,
       note: note?.trim() || null,
     },

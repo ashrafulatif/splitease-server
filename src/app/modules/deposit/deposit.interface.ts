@@ -3,6 +3,7 @@ export interface ICreateDepositPayload {
   monthId: string;
   amount: number;
   note?: string;
+  userId?: string;
 }
 
 export interface IUpdateDepositPayload {

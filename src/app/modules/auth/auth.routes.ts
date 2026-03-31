@@ -24,6 +24,8 @@ router.post(
 
 router.post("/verify-email", AuthController.verifyEmail);
 
+router.post("/resend-otp", AuthController.resendOtp);
+
 router.post("/forget-password", AuthController.forgetPassword);
 
 router.post("/reset-password", AuthController.resetPassword);

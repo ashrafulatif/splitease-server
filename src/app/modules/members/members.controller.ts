@@ -21,7 +21,8 @@ const addMemberToHouse = catchAsync(async (req: Request, res: Response) => {
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
-    message: "Member added to house successfully",
+    message:
+      "Member added to house successfully. Check your email for credentials.",
     data: result,
   });
 });

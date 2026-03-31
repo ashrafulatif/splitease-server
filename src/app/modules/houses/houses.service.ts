@@ -11,6 +11,7 @@ const houseDetailsInclude = {
       id: true,
       name: true,
       email: true,
+      image: true,
     },
   },
   members: {
@@ -20,6 +21,7 @@ const houseDetailsInclude = {
           id: true,
           name: true,
           email: true,
+          image: true,
         },
       },
     },

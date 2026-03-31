@@ -6,19 +6,19 @@ import { UserRole } from "../../../generated/prisma/enums";
 const router = Router();
 
 router.post(
-	"/",
-	CheckAuth(UserRole.ADMIN, UserRole.MANAGER),
-	MembersController.addMemberToHouse,
+  "/",
+  CheckAuth(UserRole.ADMIN, UserRole.MANAGER),
+  MembersController.addMemberToHouse,
 );
 
 router.get(
-	"/",
-	CheckAuth(UserRole.ADMIN, UserRole.MANAGER),
-	MembersController.getAllMembers,
+  "/",
+  CheckAuth(UserRole.ADMIN, UserRole.MANAGER),
+  MembersController.getAllMembers,
 );
 
 router.get(
-  "/house-members/:houseId",
+  "/house/:houseId",
   CheckAuth(UserRole.MANAGER),
   MembersController.getHouseMember,
 );

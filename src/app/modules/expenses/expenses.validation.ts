@@ -8,6 +8,7 @@ const createExpenseSchema = z.object({
   amount: z
     .number("Amount must be a number")
     .positive("Amount must be greater than 0"),
+  userId: z.string().uuid("User id must be valid").optional(),
   description: z
     .string({ error: "Description must be a string" })
     .max(500, "Description cannot exceed 500 characters")

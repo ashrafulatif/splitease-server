@@ -213,6 +213,33 @@ const verifyEmail = async (email: string, otp: string) => {
   }
 };
 
+const resendOtp = async (email: string) => {
+  const normalizedEmail = email.toLowerCase().trim();
+
+  const isUserExist = await prisma.user.findUnique({
+    where: { email: normalizedEmail },
+  });
+
+  if (!isUserExist) {
+    throw new AppError(status.NOT_FOUND, "User not found");
+  }
+
+  if (isUserExist.isDeleted) {
+    throw new AppError(status.NOT_FOUND, "User not found");
+  }
+
+  if (isUserExist.emailVerified) {
+    throw new AppError(status.BAD_REQUEST, "Email is already verified");
+  }
+
+  await auth.api.sendVerificationOTP({
+    body: {
+      email: normalizedEmail,
+      type: "email-verification",
+    },
+  });
+};
+
 const forgetPassword = async (email: string) => {
   const isUserExist = await prisma.user.findUnique({ where: { email } });
 
@@ -344,6 +371,7 @@ export const AuthService = {
   logoutUser,
   googleLoginSuccess,
   verifyEmail,
+  resendOtp,
   forgetPassword,
   resetPassword,
   changePassword,

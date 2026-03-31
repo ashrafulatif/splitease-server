@@ -7,7 +7,7 @@ const router = Router();
 
 router.post(
   "/initiate-payment/:planId",
-  CheckAuth(UserRole.MANAGER, UserRole.MEMBER),
+  CheckAuth(UserRole.MANAGER),
   SubscriptionController.initiateSubscription,
 );
 

@@ -39,7 +39,7 @@ const createExpense = async (
   payload: ICreateExpensePayload,
   user: IRequestUser,
 ) => {
-  const { houseId, monthId, type, amount, description } = payload;
+  const { houseId, monthId, type, amount, description, userId } = payload;
 
   if (!amount || amount <= 0) {
     throw new AppError(status.BAD_REQUEST, "Amount must be greater than 0");
@@ -82,6 +82,49 @@ const createExpense = async (
     );
   }
 
+  const requesterRole = month.house.members[0]?.role;
+  const isManager =
+    month.house.createdBy === user.userId ||
+    requesterRole === UserRole.ADMIN ||
+    requesterRole === UserRole.MANAGER;
+
+  const targetUserId = userId ?? user.userId;
+
+  if (!isManager && targetUserId !== user.userId) {
+    throw new AppError(
+      status.FORBIDDEN,
+      "You are not authorized to add expense for other members",
+    );
+  }
+
+  if (isManager) {
+    const isTargetUserInHouse = await prisma.house.findFirst({
+      where: {
+        id: houseId,
+        OR: [
+          {
+            createdBy: targetUserId,
+          },
+          {
+            members: {
+              some: {
+                userId: targetUserId,
+              },
+            },
+          },
+        ],
+      },
+      select: { id: true },
+    });
+
+    if (!isTargetUserInHouse) {
+      throw new AppError(
+        status.NOT_FOUND,
+        "Target user is not a member of this house",
+      );
+    }
+  }
+
   return prisma.expense.create({
     data: {
       houseId,
@@ -89,7 +132,7 @@ const createExpense = async (
       type: type as ExpenseTypeEnum,
       amount,
       description: description?.trim() || null,
-      createdBy: user.userId,
+      createdBy: targetUserId,
     },
     include: expenseDetailsInclude,
   });

@@ -1,14 +1,14 @@
 import { MealEnum } from "../../../generated/prisma/enums";
 
 export interface IAddMealPayload {
-	houseId: string;
-	monthId: string;
-	date: string;
-	mealType: MealEnum;
+  houseId: string;
+  monthId: string;
+  date: string;
+  mealType: MealEnum;
+  userId?: string;
 }
 
 export interface IUpdateMealPayload {
-	date?: string;
-	mealType?: MealEnum;
+  date?: string;
+  mealType?: MealEnum;
 }
-

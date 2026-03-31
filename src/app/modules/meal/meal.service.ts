@@ -33,7 +33,7 @@ const mealDetailsInclude = {
 } as const;
 
 const addMeal = async (payload: IAddMealPayload, user: IRequestUser) => {
-  const { houseId, monthId, date, mealType } = payload;
+  const { houseId, monthId, date, mealType, userId } = payload;
 
   const mealDate = new Date(date);
   if (Number.isNaN(mealDate.getTime())) {
@@ -74,11 +74,54 @@ const addMeal = async (payload: IAddMealPayload, user: IRequestUser) => {
     throw new AppError(status.BAD_REQUEST, "Cannot add meal to a closed month");
   }
 
+  const requesterRole = month.house.members[0]?.role;
+  const isManager =
+    month.house.createdBy === user.userId ||
+    requesterRole === UserRole.ADMIN ||
+    requesterRole === UserRole.MANAGER;
+
+  const targetUserId = userId ?? user.userId;
+
+  if (!isManager && targetUserId !== user.userId) {
+    throw new AppError(
+      status.FORBIDDEN,
+      "You are not authorized to add meal for other members",
+    );
+  }
+
+  if (isManager) {
+    const isTargetUserInHouse = await prisma.house.findFirst({
+      where: {
+        id: houseId,
+        OR: [
+          {
+            createdBy: targetUserId,
+          },
+          {
+            members: {
+              some: {
+                userId: targetUserId,
+              },
+            },
+          },
+        ],
+      },
+      select: { id: true },
+    });
+
+    if (!isTargetUserInHouse) {
+      throw new AppError(
+        status.NOT_FOUND,
+        "Target user is not a member of this house",
+      );
+    }
+  }
+
   return prisma.meal.create({
     data: {
       houseId,
       monthId,
-      userId: user.userId,
+      userId: targetUserId,
       date: mealDate,
       mealType: mealType as MealEnum,
     },
@@ -117,8 +160,17 @@ const getAllMeals = async (monthId: string, user: IRequestUser) => {
     );
   }
 
+  const requesterRole = month.house.members[0]?.role;
+  const isManager =
+    month.house.createdBy === user.userId || requesterRole === UserRole.MANAGER;
+
   return prisma.meal.findMany({
-    where: { monthId },
+    where: isManager
+      ? { monthId }
+      : {
+          monthId,
+          userId: user.userId,
+        },
     orderBy: { date: "asc" },
     include: mealDetailsInclude,
   });

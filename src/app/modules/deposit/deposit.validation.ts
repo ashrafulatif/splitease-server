@@ -6,6 +6,7 @@ const createDepositSchema = z.object({
   amount: z
     .number("Amount must be a number")
     .positive("Amount must be greater than 0"),
+  userId: z.string().uuid("User id must be valid").optional(),
   note: z
     .string({ error: "Note must be a string" })
     .max(500, "Note cannot exceed 500 characters")

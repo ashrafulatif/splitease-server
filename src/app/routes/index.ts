@@ -10,6 +10,7 @@ import { StatsRoutes } from "../modules/stats/stats.routes";
 import { PlansRoutes } from "../modules/plans/plans.routes";
 import { SubscriptionRoutes } from "../modules/subscription/subscription.routes";
 import { PaymentRoutes } from "../modules/payments/payments.routes";
+import { UsersRoutes } from "../modules/users/users.routes";
 
 const router = Router();
 
@@ -34,5 +35,7 @@ router.use("/plans", PlansRoutes);
 router.use("/subscription", SubscriptionRoutes);
 
 router.use("/payments", PaymentRoutes);
+
+router.use("/users", UsersRoutes);
 
 export const IndexRouter = router;

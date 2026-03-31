@@ -6,6 +6,7 @@ export interface ICreateExpensePayload {
   type: ExpenseTypeEnum;
   amount: number;
   description?: string;
+  userId?: string;
 }
 
 export interface IUpdateExpensePayload {
