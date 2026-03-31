@@ -4285,8 +4285,8 @@ var initiateSubscription = async (planId, user) => {
       subscriptionId: subscription.id,
       paymentId: payment.id
     },
-    success_url: `${envVars.FRONTEND_URL}/dashboard/subscription/success?subscription_id=${subscription.id}&payment_id=${payment.id}`,
-    cancel_url: `${envVars.FRONTEND_URL}/dashboard/subscription?cancelled=true`
+    success_url: `${envVars.FRONTEND_URL}/manager/dashboard/subscription`,
+    cancel_url: `${envVars.FRONTEND_URL}/manager/dashboard`
   });
   await prisma.payment.update({
     where: { id: payment.id },
