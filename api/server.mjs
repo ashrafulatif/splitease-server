@@ -491,7 +491,7 @@ var auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: true
+    requireEmailVerification: false
   },
   socialProviders: {
     google: {
@@ -565,7 +565,7 @@ var auth = betterAuth({
             }
           }
           if (user && !user.emailVerified) {
-            sendEmail({
+            await sendEmail({
               to: email,
               subject: "Verify your email",
               templateName: "otp",
@@ -583,7 +583,7 @@ var auth = betterAuth({
             }
           });
           if (user) {
-            sendEmail({
+            await sendEmail({
               to: email,
               subject: "Password Reset OTP",
               templateName: "otp",
@@ -1205,7 +1205,7 @@ var resetPassword2 = catchAsync(async (req, res) => {
   });
 });
 var googleLogin = catchAsync(async (req, res) => {
-  const redirectPath = req.query.redirect || "/dashboard";
+  const redirectPath = req.query.redirect || "/";
   const encodedRedirectPath = encodeURIComponent(redirectPath);
   const callbackURL = `${envVars.BETTER_AUTH_URL}/api/v1/auth/google/success?redirect=${encodedRedirectPath}`;
   res.render("googleRedirect", {
@@ -1214,7 +1214,7 @@ var googleLogin = catchAsync(async (req, res) => {
   });
 });
 var googleLoginSuccess2 = catchAsync(async (req, res) => {
-  const redirectPath = req.query.redirect || "/dashboard";
+  const redirectPath = req.query.redirect || "/";
   const sessionToken = req.cookies["better-auth.session_token"];
   if (!sessionToken) {
     return res.redirect(`${envVars.FRONTEND_URL}/login?error=oauth_failed`);
@@ -1233,7 +1233,7 @@ var googleLoginSuccess2 = catchAsync(async (req, res) => {
   tokenUtils.setAccessTokenCookie(res, accessToken);
   tokenUtils.setRefreshTokenCookie(res, refreshToken);
   const isValidRedirectPath = redirectPath.startsWith("/") && !redirectPath.startsWith("//");
-  const finalRedirectPath = isValidRedirectPath ? redirectPath : "/dashboard";
+  const finalRedirectPath = isValidRedirectPath ? redirectPath : "/";
   res.redirect(`${envVars.FRONTEND_URL}${finalRedirectPath}`);
 });
 var updateProfile2 = catchAsync(async (req, res) => {
