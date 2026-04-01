@@ -147,7 +147,7 @@ const resetPassword = catchAsync(async (req: Request, res: Response) => {
 });
 
 const googleLogin = catchAsync(async (req: Request, res: Response) => {
-  const redirectPath = req.query.redirect || "/dashboard";
+  const redirectPath = req.query.redirect || "/";
 
   const encodedRedirectPath = encodeURIComponent(redirectPath as string);
 
@@ -161,7 +161,7 @@ const googleLogin = catchAsync(async (req: Request, res: Response) => {
 });
 
 const googleLoginSuccess = catchAsync(async (req: Request, res: Response) => {
-  const redirectPath = (req.query.redirect as string) || "/dashboard";
+  const redirectPath = (req.query.redirect as string) || "/";
 
   //check the session
   const sessionToken = req.cookies["better-auth.session_token"];
@@ -196,7 +196,7 @@ const googleLoginSuccess = catchAsync(async (req: Request, res: Response) => {
 
   const isValidRedirectPath =
     redirectPath.startsWith("/") && !redirectPath.startsWith("//");
-  const finalRedirectPath = isValidRedirectPath ? redirectPath : "/dashboard";
+  const finalRedirectPath = isValidRedirectPath ? redirectPath : "/";
 
   res.redirect(`${envVars.FRONTEND_URL}${finalRedirectPath}`);
 });
