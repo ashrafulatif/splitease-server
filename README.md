@@ -67,8 +67,8 @@ splitease-server/
 
 ## Database Design
 
-![Database Design](db_design.png)
-_See attached image for full ER diagram._
+![Database Design](splitease.jpg)
+
 
 ## API Endpoints
 
