@@ -5,13 +5,14 @@ import { sendResponse } from "../../shared/sendResponse";
 import { UsersService } from "./users.service";
 
 const getAllUsers = catchAsync(async (req: Request, res: Response) => {
-  const result = await UsersService.getAllUsers();
+  const result = await UsersService.getAllUsers(req.query);
 
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
     message: "Users retrieved successfully",
-    data: result,
+    meta: result.meta,
+    data: result.data,
   });
 });
 

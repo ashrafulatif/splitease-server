@@ -46,6 +46,7 @@ const getHouseMember = catchAsync(async (req: Request, res: Response) => {
   const { houseId } = req.params;
   const result = await MembersService.getHouseMember(
     houseId as string,
+    req.query,
     req.user,
   );
 
@@ -53,7 +54,8 @@ const getHouseMember = catchAsync(async (req: Request, res: Response) => {
     statusCode: status.OK,
     success: true,
     message: "House members retrieved successfully",
-    data: result,
+    meta: result.meta,
+    data: result.data,
   });
 });
 

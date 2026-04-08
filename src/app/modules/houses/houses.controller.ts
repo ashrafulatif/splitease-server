@@ -5,13 +5,14 @@ import { sendResponse } from "../../shared/sendResponse";
 import { HouseService } from "./houses.service";
 
 const getAllHouses = catchAsync(async (req: Request, res: Response) => {
-  const result = await HouseService.getAllHouses();
+  const result = await HouseService.getAllHouses(req.query);
 
   sendResponse(res, {
     statusCode: status.OK,
     success: true,
     message: "Houses retrieved successfully",
-    data: result,
+    meta: result.meta,
+    data: result.data,
   });
 });
 

@@ -4,6 +4,7 @@ import AppError from "../../errorHelpers/AppError";
 import { IRequestUser } from "../../interfaces/requestUser.interface";
 import { UserRole } from "../../../generated/prisma/enums";
 import { ICreateHousePayload, IUpdateHousePayload } from "./houses.interface";
+import paginationAndSortgHelper from "../../helpers/paginationAndSorting";
 
 const houseDetailsInclude = {
   creator: {
@@ -37,11 +38,27 @@ const houseDetailsInclude = {
   },
 } as const;
 
-const getAllHouses = async () => {
-  return prisma.house.findMany({
-    orderBy: { createdAt: "desc" },
+const getAllHouses = async (query: Record<string, unknown>) => {
+  const { page, limit, skip, sortBy, sortOrder } = paginationAndSortgHelper(query);
+
+  const total = await prisma.house.count();
+
+  const result = await prisma.house.findMany({
+    skip,
+    take: limit,
+    orderBy: { [sortBy]: sortOrder },
     include: houseDetailsInclude,
   });
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+    data: result,
+  };
 };
 
 ///TODO : add limit for create house for free users

@@ -1427,6 +1427,25 @@ import status7 from "http-status";
 
 // src/app/modules/houses/houses.service.ts
 import status6 from "http-status";
+
+// src/app/helpers/paginationAndSorting.ts
+var paginationAndSortgHelper = (options) => {
+  const page = Number(options.page) || 1;
+  const limit = Number(options.limit) || 8;
+  const skip = (page - 1) * limit;
+  const sortOrder = options.sortOrder || "asc";
+  const sortBy = options.sortBy || "createdAt";
+  return {
+    page,
+    limit,
+    skip,
+    sortBy,
+    sortOrder
+  };
+};
+var paginationAndSorting_default = paginationAndSortgHelper;
+
+// src/app/modules/houses/houses.service.ts
 var houseDetailsInclude = {
   creator: {
     select: {
@@ -1458,11 +1477,24 @@ var houseDetailsInclude = {
     }
   }
 };
-var getAllHouses = async () => {
-  return prisma.house.findMany({
-    orderBy: { createdAt: "desc" },
+var getAllHouses = async (query) => {
+  const { page, limit, skip, sortBy, sortOrder } = paginationAndSorting_default(query);
+  const total = await prisma.house.count();
+  const result = await prisma.house.findMany({
+    skip,
+    take: limit,
+    orderBy: { [sortBy]: sortOrder },
     include: houseDetailsInclude
   });
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit)
+    },
+    data: result
+  };
 };
 var createHouse = async (payload, user) => {
   const name = payload?.name?.trim();
@@ -1612,12 +1644,13 @@ var HouseService = {
 
 // src/app/modules/houses/houses.controller.ts
 var getAllHouses2 = catchAsync(async (req, res) => {
-  const result = await HouseService.getAllHouses();
+  const result = await HouseService.getAllHouses(req.query);
   sendResponse(res, {
     statusCode: status7.OK,
     success: true,
     message: "Houses retrieved successfully",
-    data: result
+    meta: result.meta,
+    data: result.data
   });
 });
 var getMyHouses2 = catchAsync(async (req, res) => {
@@ -1902,7 +1935,8 @@ var getMemberById = async (id, user) => {
   }
   return member;
 };
-var getHouseMember = async (houseId, user) => {
+var getHouseMember = async (houseId, query, user) => {
+  const { page, limit, skip, sortBy, sortOrder } = paginationAndSorting_default(query);
   const house = await prisma.house.findUnique({
     where: { id: houseId },
     include: {
@@ -1922,11 +1956,26 @@ var getHouseMember = async (houseId, user) => {
       "You are not authorized to view house members"
     );
   }
-  return prisma.houseMember.findMany({
-    where: { houseId },
-    orderBy: { createdAt: "desc" },
+  const whereConditions = { houseId };
+  const total = await prisma.houseMember.count({
+    where: whereConditions
+  });
+  const result = await prisma.houseMember.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy: { [sortBy]: sortOrder },
     include: memberDetailsInclude
   });
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit)
+    },
+    data: result
+  };
 };
 var deleteMember = async (id, user) => {
   const member = await prisma.houseMember.findUnique({
@@ -2017,13 +2066,15 @@ var getHouseMember2 = catchAsync(async (req, res) => {
   const { houseId } = req.params;
   const result = await MembersService.getHouseMember(
     houseId,
+    req.query,
     req.user
   );
   sendResponse(res, {
     statusCode: status9.OK,
     success: true,
     message: "House members retrieved successfully",
-    data: result
+    meta: result.meta,
+    data: result.data
   });
 });
 var deleteMember2 = catchAsync(async (req, res) => {
@@ -2162,7 +2213,8 @@ var createMonth = async (payload, user) => {
     include: monthDetailsInclude
   });
 };
-var getHouseMonths = async (houseId, user) => {
+var getHouseMonths = async (houseId, query, user) => {
+  const { page, limit, skip, sortBy, sortOrder } = paginationAndSorting_default(query);
   const house = await prisma.house.findUnique({
     where: { id: houseId },
     include: {
@@ -2182,11 +2234,26 @@ var getHouseMonths = async (houseId, user) => {
       "You are not authorized to view months of this house"
     );
   }
-  return prisma.month.findMany({
-    where: { houseId },
-    orderBy: { startDate: "asc" },
+  const whereConditions = { houseId };
+  const total = await prisma.month.count({
+    where: whereConditions
+  });
+  const result = await prisma.month.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy: { [sortBy]: sortOrder },
     include: monthDetailsInclude
   });
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit)
+    },
+    data: result
+  };
 };
 var getMonthById = async (monthId, user) => {
   const month = await prisma.month.findUnique({
@@ -2321,17 +2388,22 @@ var createMonth2 = catchAsync(async (req, res) => {
 var getHouseMonths2 = catchAsync(async (req, res) => {
   const result = await MonthService.getHouseMonths(
     req.params.houseId,
+    req.query,
     req.user
   );
   sendResponse(res, {
     statusCode: status11.OK,
     success: true,
     message: "Months retrieved successfully",
-    data: result
+    meta: result.meta,
+    data: result.data
   });
 });
 var getMonthById2 = catchAsync(async (req, res) => {
-  const result = await MonthService.getMonthById(req.params.id, req.user);
+  const result = await MonthService.getMonthById(
+    req.params.id,
+    req.user
+  );
   sendResponse(res, {
     statusCode: status11.OK,
     success: true,
@@ -2340,7 +2412,10 @@ var getMonthById2 = catchAsync(async (req, res) => {
   });
 });
 var deleteMonth2 = catchAsync(async (req, res) => {
-  const result = await MonthService.deleteMonth(req.params.id, req.user);
+  const result = await MonthService.deleteMonth(
+    req.params.id,
+    req.user
+  );
   sendResponse(res, {
     statusCode: status11.OK,
     success: true,
@@ -4414,18 +4489,34 @@ var userListSelect = {
   createdAt: true,
   updatedAt: true
 };
-var getAllUsers = async () => {
-  return prisma.user.findMany({
-    where: {
-      role: {
-        not: UserRole.ADMIN
-      }
-    },
+var getAllUsers = async (query) => {
+  const { page, limit, skip, sortBy, sortOrder } = paginationAndSorting_default(query);
+  const whereConditions = {
+    role: {
+      not: UserRole.ADMIN
+    }
+  };
+  const total = await prisma.user.count({
+    where: whereConditions
+  });
+  const result = await prisma.user.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
     orderBy: {
-      createdAt: "desc"
+      [sortBy]: sortOrder
     },
     select: userListSelect
   });
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit)
+    },
+    data: result
+  };
 };
 var getUserById = async (id) => {
   const user = await prisma.user.findUnique({
@@ -4489,12 +4580,13 @@ var UsersService = {
 
 // src/app/modules/users/users.controller.ts
 var getAllUsers2 = catchAsync(async (req, res) => {
-  const result = await UsersService.getAllUsers();
+  const result = await UsersService.getAllUsers(req.query);
   sendResponse(res, {
     statusCode: status25.OK,
     success: true,
     message: "Users retrieved successfully",
-    data: result
+    meta: result.meta,
+    data: result.data
   });
 });
 var getUserById2 = catchAsync(async (req, res) => {

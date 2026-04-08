@@ -6,6 +6,7 @@ import { UserRole } from "../../../generated/prisma/enums";
 import { IAddMemberToHousePayload } from "./members.interface";
 import { auth } from "../../lib/auth";
 import { sendEmail } from "../../utils/emall";
+import paginationAndSortgHelper from "../../helpers/paginationAndSorting";
 
 const memberDetailsInclude = {
   user: {
@@ -232,7 +233,13 @@ const getMemberById = async (id: string, user: IRequestUser) => {
   return member;
 };
 
-const getHouseMember = async (houseId: string, user: IRequestUser) => {
+const getHouseMember = async (
+  houseId: string,
+  query: Record<string, unknown>,
+  user: IRequestUser,
+) => {
+  const { page, limit, skip, sortBy, sortOrder } = paginationAndSortgHelper(query);
+
   const house = await prisma.house.findUnique({
     where: { id: houseId },
     include: {
@@ -259,11 +266,29 @@ const getHouseMember = async (houseId: string, user: IRequestUser) => {
     );
   }
 
-  return prisma.houseMember.findMany({
-    where: { houseId },
-    orderBy: { createdAt: "desc" },
+  const whereConditions = { houseId };
+
+  const total = await prisma.houseMember.count({
+    where: whereConditions,
+  });
+
+  const result = await prisma.houseMember.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
+    orderBy: { [sortBy]: sortOrder },
     include: memberDetailsInclude,
   });
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+    data: result,
+  };
 };
 
 const deleteMember = async (id: string, user: IRequestUser) => {

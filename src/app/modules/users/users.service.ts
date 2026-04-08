@@ -2,6 +2,7 @@ import status from "http-status";
 import AppError from "../../errorHelpers/AppError";
 import { prisma } from "../../lib/prisma";
 import { UserRole, UserStatus } from "../../../generated/prisma/enums";
+import paginationAndSortgHelper from "../../helpers/paginationAndSorting";
 
 const userListSelect = {
   id: true,
@@ -17,18 +18,39 @@ const userListSelect = {
   updatedAt: true,
 } as const;
 
-const getAllUsers = async () => {
-  return prisma.user.findMany({
-    where: {
-      role: {
-        not: UserRole.ADMIN,
-      },
+const getAllUsers = async (query: Record<string, unknown>) => {
+  const { page, limit, skip, sortBy, sortOrder } =
+    paginationAndSortgHelper(query);
+
+  const whereConditions = {
+    role: {
+      not: UserRole.ADMIN,
     },
+  };
+
+  const total = await prisma.user.count({
+    where: whereConditions,
+  });
+
+  const result = await prisma.user.findMany({
+    where: whereConditions,
+    skip,
+    take: limit,
     orderBy: {
-      createdAt: "desc",
+      [sortBy]: sortOrder,
     },
     select: userListSelect,
   });
+
+  return {
+    meta: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+    data: result,
+  };
 };
 
 const getUserById = async (id: string) => {
