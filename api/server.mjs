@@ -8,7 +8,7 @@ var __export = (target, all) => {
 import express from "express";
 
 // src/app/routes/index.ts
-import { Router as Router13 } from "express";
+import { Router as Router14 } from "express";
 
 // src/app/modules/auth/auth.routes.ts
 import { Router } from "express";
@@ -370,7 +370,8 @@ var loadEnvVariables = () => {
     "STRIPE_SECRET_KEY",
     "STRIPE_WEBHOOK_SECRET",
     "SUPER_ADMIN_EMAIL",
-    "SUPER_ADMIN_PASSWORD"
+    "SUPER_ADMIN_PASSWORD",
+    "GROQ_API_KEY"
   ];
   requireEnvVariable.forEach((variable) => {
     if (!process.env[variable]) {
@@ -412,7 +413,8 @@ var loadEnvVariables = () => {
       STRIPE_WEBHOOK_SECRET: process.env.STRIPE_WEBHOOK_SECRET
     },
     SUPER_ADMIN_EMAIL: process.env.SUPER_ADMIN_EMAIL,
-    SUPER_ADMIN_PASSWORD: process.env.SUPER_ADMIN_PASSWORD
+    SUPER_ADMIN_PASSWORD: process.env.SUPER_ADMIN_PASSWORD,
+    GROQ_API_KEY: process.env.GROQ_API_KEY
   };
 };
 var envVars = loadEnvVariables();
@@ -4642,26 +4644,131 @@ router12.delete(
 );
 var UsersRoutes = router12;
 
-// src/app/routes/index.ts
+// src/app/modules/chat/chat.routes.ts
+import { Router as Router13 } from "express";
+
+// src/app/modules/chat/chat.controller.ts
+import status27 from "http-status";
+
+// src/app/modules/chat/chat.service.ts
+import Groq from "groq-sdk";
+import status26 from "http-status";
+var groq = new Groq({
+  apiKey: envVars.GROQ_API_KEY
+});
+var getChatResponse = async (message, user) => {
+  if (!message) {
+    throw new AppError_default(status26.BAD_REQUEST, "Message is required");
+  }
+  try {
+    const userData = await prisma.user.findUnique({
+      where: { id: user.userId },
+      include: {
+        housesCreated: {
+          include: {
+            members: {
+              include: { user: { select: { name: true, email: true } } }
+            },
+            expenses: { orderBy: { createdAt: "desc" }, take: 5 },
+            deposits: { orderBy: { createdAt: "desc" }, take: 5 },
+            meals: { orderBy: { date: "desc" }, take: 5 }
+          }
+        },
+        houseMembers: {
+          include: {
+            house: {
+              include: {
+                members: {
+                  include: { user: { select: { name: true, email: true } } }
+                },
+                expenses: { orderBy: { createdAt: "desc" }, take: 5 },
+                deposits: { orderBy: { createdAt: "desc" }, take: 5 },
+                meals: { orderBy: { date: "desc" }, take: 5 }
+              }
+            }
+          }
+        }
+      }
+    });
+    const projectContext = userData ? `User Data Context: 
+Name: ${userData.name}
+Email: ${userData.email}
+Houses Created: ${JSON.stringify(userData.housesCreated, null, 2)}
+Houses Joined as Member: ${JSON.stringify(userData.houseMembers, null, 2)}` : "No project data available for user.";
+    const chatCompletion = await groq.chat.completions.create({
+      messages: [
+        {
+          role: "system",
+          content: "You are a helpful AI assistant for SplitEase, a split expense management application. You help users understand how to manage houses, expenses, meals, payments, and deposits. Keep your answers concise, friendly, and relevant to the app. Answer directly based on the provided User Data Context. If the user asks about their own data, use the context below:\n\n" + projectContext
+        },
+        {
+          role: "user",
+          content: message
+        }
+      ],
+      model: "llama-3.3-70b-versatile",
+      temperature: 0.7,
+      max_tokens: 1024,
+      top_p: 1
+    });
+    return chatCompletion.choices[0]?.message?.content || "I couldn't generate a response at this time.";
+  } catch (error) {
+    console.error("Groq API Error:", error);
+    throw new AppError_default(
+      status26.INTERNAL_SERVER_ERROR,
+      "Failed to communicate with AI service"
+    );
+  }
+};
+var ChatService = {
+  getChatResponse
+};
+
+// src/app/modules/chat/chat.controller.ts
+var getChatResponse2 = catchAsync(async (req, res) => {
+  const { message } = req.body;
+  const result = await ChatService.getChatResponse(message, req.user);
+  sendResponse(res, {
+    statusCode: status27.OK,
+    success: true,
+    message: "Chat response generated successfully",
+    data: { response: result }
+  });
+});
+var ChatController = {
+  getChatResponse: getChatResponse2
+};
+
+// src/app/modules/chat/chat.routes.ts
 var router13 = Router13();
-router13.use("/auth", AuthRouter);
-router13.use("/houses", HousesRoutes);
-router13.use("/house-members", MembersRoutes);
-router13.use("/months", MonthRoutes);
-router13.use("/meals", MealRoutes);
-router13.use("/deposits", DepositRoutes);
-router13.use("/expenses", ExpensesRoutes);
-router13.use("/stats", StatsRoutes);
-router13.use("/plans", PlansRoutes);
-router13.use("/subscription", SubscriptionRoutes);
-router13.use("/payments", PaymentRoutes);
-router13.use("/users", UsersRoutes);
-var IndexRouter = router13;
+router13.post(
+  "/",
+  CheckAuth(UserRole.ADMIN, UserRole.MANAGER, UserRole.MEMBER),
+  ChatController.getChatResponse
+);
+var ChatRoutes = router13;
+
+// src/app/routes/index.ts
+var router14 = Router14();
+router14.use("/auth", AuthRouter);
+router14.use("/houses", HousesRoutes);
+router14.use("/house-members", MembersRoutes);
+router14.use("/months", MonthRoutes);
+router14.use("/meals", MealRoutes);
+router14.use("/deposits", DepositRoutes);
+router14.use("/expenses", ExpensesRoutes);
+router14.use("/stats", StatsRoutes);
+router14.use("/plans", PlansRoutes);
+router14.use("/subscription", SubscriptionRoutes);
+router14.use("/payments", PaymentRoutes);
+router14.use("/users", UsersRoutes);
+router14.use("/chat", ChatRoutes);
+var IndexRouter = router14;
 
 // src/app/middleware/notFound.ts
-import status26 from "http-status";
+import status28 from "http-status";
 var notFound = (req, res) => {
-  res.status(status26.NOT_FOUND).json({
+  res.status(status28.NOT_FOUND).json({
     success: false,
     message: `Route ${req.originalUrl} Not Found`
   });
@@ -4675,13 +4782,13 @@ import qs from "qs";
 import { toNodeHandler } from "better-auth/node";
 
 // src/app/middleware/globalErrorHandler.ts
-import status29 from "http-status";
+import status31 from "http-status";
 import z from "zod";
 
 // src/app/errorHelpers/handleZodError.ts
-import status27 from "http-status";
+import status29 from "http-status";
 var handleZodError = (err) => {
-  const statusCode = status27.BAD_REQUEST;
+  const statusCode = status29.BAD_REQUEST;
   const message = "Zod validation message";
   const errorSources = [];
   err.issues.forEach((issue) => {
@@ -4699,42 +4806,42 @@ var handleZodError = (err) => {
 };
 
 // src/app/errorHelpers/handlePrismaError.ts
-import status28 from "http-status";
+import status30 from "http-status";
 var getStatusCodeFromPrismaError = (errorCode) => {
   if (errorCode === "P2002") {
-    return status28.CONFLICT;
+    return status30.CONFLICT;
   }
   if (["P2025", "P2001", "P2015", "P2018"].includes(errorCode)) {
-    return status28.NOT_FOUND;
+    return status30.NOT_FOUND;
   }
   if (["P1000", "P6002"].includes(errorCode)) {
-    return status28.UNAUTHORIZED;
+    return status30.UNAUTHORIZED;
   }
   if (["P1010", "P6010"].includes(errorCode)) {
-    return status28.FORBIDDEN;
+    return status30.FORBIDDEN;
   }
   if (errorCode === "P6003") {
-    return status28.PAYMENT_REQUIRED;
+    return status30.PAYMENT_REQUIRED;
   }
   if (["P1008", "P2004", "P6004"].includes(errorCode)) {
-    return status28.GATEWAY_TIMEOUT;
+    return status30.GATEWAY_TIMEOUT;
   }
   if (errorCode === "P5011") {
-    return status28.TOO_MANY_REQUESTS;
+    return status30.TOO_MANY_REQUESTS;
   }
   if (errorCode === "P6009") {
     return 413;
   }
   if (errorCode.startsWith("P1") || ["P2024", "P2037", "P6008"].includes(errorCode)) {
-    return status28.SERVICE_UNAVAILABLE;
+    return status30.SERVICE_UNAVAILABLE;
   }
   if (errorCode.startsWith("P2")) {
-    return status28.BAD_REQUEST;
+    return status30.BAD_REQUEST;
   }
   if (errorCode.startsWith("P3") || errorCode.startsWith("P4")) {
-    return status28.INTERNAL_SERVER_ERROR;
+    return status30.INTERNAL_SERVER_ERROR;
   }
-  return status28.INTERNAL_SERVER_ERROR;
+  return status30.INTERNAL_SERVER_ERROR;
 };
 var formatErrorMeta = (meta) => {
   if (!meta) return "";
@@ -4804,7 +4911,7 @@ var handlePrismaClientUnknownError = (error) => {
   ];
   return {
     success: false,
-    statusCode: status28.INTERNAL_SERVER_ERROR,
+    statusCode: status30.INTERNAL_SERVER_ERROR,
     message: `Prisma Client Unknown Request Error: ${mainMessage}`,
     errorSources
   };
@@ -4825,13 +4932,13 @@ var handlePrismaClientValidationError = (error) => {
   });
   return {
     success: false,
-    statusCode: status28.BAD_REQUEST,
+    statusCode: status30.BAD_REQUEST,
     message: `Prisma Client Validation Error: ${mainMessage}`,
     errorSources
   };
 };
 var handlerPrismaClientInitializationError = (error) => {
-  const statusCode = error.errorCode ? getStatusCodeFromPrismaError(error.errorCode) : status28.SERVICE_UNAVAILABLE;
+  const statusCode = error.errorCode ? getStatusCodeFromPrismaError(error.errorCode) : status30.SERVICE_UNAVAILABLE;
   const cleanMessage = error.message;
   cleanMessage.replace(/Invalid `.*?` invocation:?\s*/i, "");
   const lines = cleanMessage.split("\n").filter((line) => line.trim());
@@ -4856,7 +4963,7 @@ var handlerPrismaClientRustPanicError = () => {
   }];
   return {
     success: false,
-    statusCode: status28.INTERNAL_SERVER_ERROR,
+    statusCode: status30.INTERNAL_SERVER_ERROR,
     message: "Prisma Client Rust Panic Error: The database engine crashed due to a fatal error.",
     errorSources
   };
@@ -4867,7 +4974,7 @@ var globalErrorHandler = async (err, req, res, next) => {
   if (envVars.NODE_ENV === "development") {
     console.log("Error from Global Error Handler", err);
   }
-  let statusCode = status29.INTERNAL_SERVER_ERROR;
+  let statusCode = status31.INTERNAL_SERVER_ERROR;
   let message = "Internal Server Error";
   let errorSources = [];
   let stack = void 0;
@@ -4924,7 +5031,7 @@ var globalErrorHandler = async (err, req, res, next) => {
       }
     ];
   } else if (err instanceof Error) {
-    statusCode = status29.INTERNAL_SERVER_ERROR;
+    statusCode = status31.INTERNAL_SERVER_ERROR;
     message = err.message;
     stack = err.stack;
     errorSources = [
@@ -4945,7 +5052,7 @@ var globalErrorHandler = async (err, req, res, next) => {
 };
 
 // src/app/modules/payments/payments.controller.ts
-import status30 from "http-status";
+import status32 from "http-status";
 
 // src/app/modules/payments/payments.service.ts
 var addDays = (date, days) => {
@@ -5083,7 +5190,7 @@ var handlerStripeWebhookEvent2 = catchAsync(
     const signature = req.headers["stripe-signature"];
     const webhookSecret = envVars.STRIPE.STRIPE_WEBHOOK_SECRET;
     if (!signature || !webhookSecret) {
-      return res.status(status30.BAD_REQUEST).json({ message: "Missing Stripe signature or webhook secret" });
+      return res.status(status32.BAD_REQUEST).json({ message: "Missing Stripe signature or webhook secret" });
     }
     let event;
     try {
@@ -5093,11 +5200,11 @@ var handlerStripeWebhookEvent2 = catchAsync(
         webhookSecret
       );
     } catch {
-      return res.status(status30.BAD_REQUEST).json({ message: "Error processing Stripe webhook" });
+      return res.status(status32.BAD_REQUEST).json({ message: "Error processing Stripe webhook" });
     }
     const result = await PaymentService.handlerStripeWebhookEvent(event);
     sendResponse(res, {
-      statusCode: status30.OK,
+      statusCode: status32.OK,
       success: true,
       message: "Stripe webhook event processed successfully",
       data: result

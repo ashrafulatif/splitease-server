@@ -11,6 +11,7 @@ import { PlansRoutes } from "../modules/plans/plans.routes";
 import { SubscriptionRoutes } from "../modules/subscription/subscription.routes";
 import { PaymentRoutes } from "../modules/payments/payments.routes";
 import { UsersRoutes } from "../modules/users/users.routes";
+import { ChatRoutes } from "../modules/chat/chat.routes";
 
 const router = Router();
 
@@ -37,5 +38,7 @@ router.use("/subscription", SubscriptionRoutes);
 router.use("/payments", PaymentRoutes);
 
 router.use("/users", UsersRoutes);
+
+router.use("/chat", ChatRoutes);
 
 export const IndexRouter = router;
