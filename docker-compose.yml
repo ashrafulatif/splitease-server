@@ -1,0 +1,26 @@
+services:
+  splitease-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    ports:
+      - 4000:4000
+
+    networks:
+      - splitease-network
+    
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+    env_file:
+      - .env
+
+    environment:
+      - NODE_ENV=development
+
+networks:
+  splitease-network:
+    external: true
+    name: splitease-network
