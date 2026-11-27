@@ -227,6 +227,47 @@ Note: Some endpoints support all authenticated roles even if not specified.
 
 ## Setup Instructions
 
+### Docker Setup
+
+You need Docker Engine and the Docker Compose plugin installed.
+
+1. **Configure environment variables:**
+
+   ```bash
+   cp .env.example .env
+   ```
+
+   Update `.env` with your configuration, especially `DATABASE_URL`. The Compose
+   setup starts the API only, so PostgreSQL must already be running and reachable
+   from the container. If PostgreSQL runs in another container, connect both
+   containers to the `splitease-network` network and use the database container's
+   name as the database host. Do not use `localhost` for a database running outside
+   the API container.
+
+2. **Create the Docker network and start the API:**
+
+   ```bash
+   docker network create splitease-network
+   docker compose up --build -d
+   ```
+
+   The API is available at [http://localhost:4000](http://localhost:4000).
+
+3. **Apply database migrations:**
+
+   ```bash
+   docker compose exec splitease-server pnpm prisma migrate deploy
+   ```
+
+To follow the container logs or stop the API:
+
+```bash
+docker compose logs -f splitease-server
+docker compose down
+```
+
+### Local Setup
+
 1. **Clone the repository:**
 
    ```bash
